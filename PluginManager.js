@@ -1,7 +1,7 @@
-'use strict'
 var _ = require('lodash');
 class PluginManager {
-  constructor(chatter) {
+  constructor(ring, dirname) {
+      console.log(dirname);
     this.events = {};
     var plugins = [];
     var fs = require("fs");
@@ -12,7 +12,7 @@ class PluginManager {
       console.log("Loading: " + data.name)
       var module = require(dir);
       //Create the plugin instance
-      var obj = new module(chatter);
+      var obj = new module(ring);
       //Build the default plugin
       var createPlugin = new Plugin(data.name, data.author, data.description);
       //combind the two
@@ -48,10 +48,11 @@ class PluginManager {
       plugin.onDisable && plugin.onDisable();
       plugin.setEnabled(false);
       this.unRegisterEvents(plugin);
-      _.each(chatter.getActiveConfigs(plugin), function(config) {
-        chatter.unLoadConfig(config);
-      });
-      chatter.scheduler.cancelTasks(plugin);
+      //TODO these will have to come back later
+      // _.each(chatter.getActiveConfigs(plugin), function(config) {
+      //   chatter.unLoadConfig(config);
+      // });
+      // chatter.scheduler.cancelTasks(plugin);
     }
 
     this.getPlugin = function(name) {
@@ -63,7 +64,7 @@ class PluginManager {
     }
     var load = function(name) {
 
-      var data = fs.readFileSync("plugins/"+name + "/plugin.json");
+      var data = fs.readFileSync(dirname + "/plugins/"+name + "/plugin.json");
       data = JSON.parse(data);
       if(!self.getPlugin(data.name)) {
         if(data.depend) {
@@ -73,7 +74,7 @@ class PluginManager {
             }
           });
         }
-        addPlugin("./plugins/"+name + "/" + data.main, data);
+        addPlugin(dirname + "/plugins/"+name + "/" + data.main, data);
 
       }
 
@@ -95,11 +96,11 @@ class PluginManager {
       amount = dir.length;
       dir.forEach(function(plugin) {
         if(!self.getPlugin(plugin)) {
-          console.log("Going to load " + plugin)
+          console.log("Going to load " + plugin);
           load(plugin);
         }
-      })
-    })
+      });
+    });
 
   }
 
@@ -108,7 +109,7 @@ class PluginManager {
       var events = this.events[key];
       this.events[key] = _.reject(events, function(e) {
         return e.plugin === plugin;
-      })
+      });
     }
   }
 
@@ -241,7 +242,7 @@ Result.states = {
   "default": def,
   "allow": allow,
   "deny": deny,
-}
+};
 
 Result.default = def;
 Result.deny = deny;
@@ -249,7 +250,7 @@ Result.allow = allow;
 
 
 
-module.exports = function(chatter) {
-  return new PluginManager(chatter);
-}
+module.exports = function(ring, dirname) {
+  return new PluginManager(ring, dirname);
+};
 module.exports.Result = Result;
