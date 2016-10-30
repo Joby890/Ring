@@ -1,0 +1,50 @@
+class NodeLoader {
+
+  load(pluginManager) {
+    var fs = require("fs");
+    // var self = this;
+    //Check if dir exsits
+    if(!fs.existsSync("./plugins")) {
+      try {
+        fs.mkdirSync("./plugins");
+      } catch(e) {
+        //Plugin directory does not exists could not be created. Error out..
+        console.log("Plugin Dir could not be found or created");
+        throw new Error("Not plugin dir");
+      }
+    }
+    fs.readdir("./plugins", function(err, dir) {
+      //load plugins
+      // var toLoad = [];
+      amount = dir.length;
+      dir.forEach(function(plugin) {
+        if(!self.getPlugin(plugin)) {
+          console.log("Going to load " + plugin);
+          load(plugin, pluginManager);
+        }
+      });
+    });
+  }
+  load2(name, pluginManager) {
+
+    var data = fs.readFileSync(dirname + "/plugins/"+name + "/plugin.json");
+    data = JSON.parse(data);
+    if(!self.getPlugin(data.name)) {
+      if(data.depend) {
+        data.depend.forEach(function(name) {
+          if(!self.getPlugin(name)) {
+            load(name);
+          }
+        });
+      }
+      pluginManager.addPlugin(dirname + "/plugins/"+name + "/" + data.main, data);
+
+    }
+  }
+  
+}
+
+
+module.exports = function() {
+  return new NodeLoader();
+};
