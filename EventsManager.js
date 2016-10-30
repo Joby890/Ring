@@ -38,11 +38,9 @@ class EventsManager {
           if(event[index].callback.length === 1) {
             event[index].callback(e);
             done();
-          } else if (finished) { //If args is not 1 AND fireEvent callback is not undefined
+          } else if (finished) {
             event[index].callback(e, done);
           } else {
-            //poternially still call event but not wait for done...... Not a bad idea...
-            // console.log("Error firing "+name+"... Async event registed on a sync fire");
             console.log("Caution asyc event listener on sync fire. Event will not wait");
             event[index].callback(e, () => {});
             done();

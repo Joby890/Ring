@@ -19,9 +19,7 @@ class PluginManager {
       self.enablePlugin(createPlugin);
       plugins.push(createPlugin);
       if(amount === plugins.length) {
-        var event = self.fireEvent("PluginsFinishedLoadingEvent", {});
-        //TODO use event
-        event = event;
+        self.fireEvent("PluginsFinishedLoadingEvent", {});
       }
     };
 
@@ -49,11 +47,7 @@ class PluginManager {
       plugin.onDisable && plugin.onDisable();
       plugin.setEnabled(false);
       this.unRegisterEvents(plugin);
-      //TODO these will have to come back later
-      // _.each(chatter.getActiveConfigs(plugin), function(config) {
-      //   chatter.unLoadConfig(config);
-      // });
-      // chatter.scheduler.cancelTasks(plugin);
+
     };
 
     this.getPlugin = function(name) {
